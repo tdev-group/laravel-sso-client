@@ -1,0 +1,45 @@
+{
+    "name": "tdev-group/laravel-sso-client",
+    "description": "Laravel Sso Client provides identity server client support to laravel",
+    "keywords": [
+        "laravel",
+        "oauth",
+        "is4",
+        "identityserver4",
+        "identity-server4"
+    ],
+    "authors": [
+        {
+            "name": "Terro",
+            "email": "wali7981@gmail.com"
+        }
+    ],
+    "type": "library",
+    "require": {
+        "php": "^7.1|^8.0",
+        "firebase/php-jwt": "6.0",
+        "illuminate/http": "^9.14",
+        "illuminate/auth": "^9.14",
+        "illuminate/database": "^9.14",
+        "illuminate/support": "^9.14",
+        "illuminate/validation": "^9.14",
+        "guzzlehttp/guzzle": "^7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "LaravelSsoClient\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaravelSsoClient\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "LaravelSsoClient\\Providers\\SsoServiceProvider"
+            ]
+        }
+    }
+}
