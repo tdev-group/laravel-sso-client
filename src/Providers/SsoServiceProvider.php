@@ -21,6 +21,12 @@ class SsoServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        if ($this->app->runningInConsole()) {
+            $this->publishes([
+                __DIR__ . '/../../config/sso-client.php' => config_path('sso-client.php'),
+            ], 'sso-client-config');
+        }
+
         Auth::provider('sso-server', function ($app, array $config) {
             $jwt = $app->make(JWT::class);
             $userImporter = $app->make(IUserImporterService::class);
