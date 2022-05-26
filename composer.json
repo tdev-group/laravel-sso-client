@@ -17,7 +17,7 @@
     "type": "library",
     "require": {
         "php": "^7.1|^8.0",
-        "firebase/php-jwt": "6.0",
+        "firebase/php-jwt": "^5.5",
         "illuminate/http": "^9.14",
         "illuminate/auth": "^9.14",
         "illuminate/database": "^9.14",
