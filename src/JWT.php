@@ -104,7 +104,7 @@ class JWT
      */
     public function getSubject()
     {
-        return $this->getClaims('sub');
+        return $this->getClaims(SsoClaimTypes::SUBJECT);
     }
 
     /**
@@ -183,7 +183,7 @@ class JWT
             return true;
         }
 
-        $aud = Arr::wrap($this->getClaims('aud', ""));
+        $aud = Arr::wrap($this->getClaims(SsoClaimTypes::AUDIENCE, ""));
 
         return in_array($audience, $aud);
     }
@@ -215,10 +215,10 @@ class JWT
      */
     private function validIssuer(array $claims)
     {
-        $issuer = $claims['iss'];
+        $issuer = $claims[SsoClaimTypes::ISSUER];
         $authority = Config::get('sso-client.authority');
 
-        if ($claims['iss'] !== $issuer) {
+        if ($claims[SsoClaimTypes::ISSUER] !== $issuer) {
             throw new UnexpectedValueException("Invalid issuer ({$issuer}), should be ({$authority}).");
         }
 
