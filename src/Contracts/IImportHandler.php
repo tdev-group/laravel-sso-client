@@ -2,7 +2,6 @@
 
 namespace LaravelSsoClient\Contracts;
 
-use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 
 interface IImportHandler

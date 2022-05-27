@@ -3,7 +3,6 @@
 namespace LaravelSsoClient\Services;
 
 use Illuminate\Container\Container;
-use Illuminate\Contracts\Foundation\Application;
 use LaravelSsoClient\JWT;
 use LaravelSsoClient\Contracts\IUserImporterService;
 use Illuminate\Database\Eloquent\Model;

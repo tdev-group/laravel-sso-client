@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use LaravelSsoClient\Contracts\IUserImporterService;
+use LaravelSsoClient\Exceptions\UnprocessableUserException;
 use LaravelSsoClient\JWT;
 
 class SsoUserProvider extends EloquentUserProvider implements UserProvider
@@ -57,20 +58,24 @@ class SsoUserProvider extends EloquentUserProvider implements UserProvider
             ->where($this->getIdentifierName($model), $identifier)
             ->first();
 
-        // If the user provider is not returned the user, we should create one.
-        if (is_null($user)) {
-            $user = $this->userImporter->create($this->jwt);
+        try {
+            // If the user provider is not returned the user, we should create one.
+            if (is_null($user)) {
+                $user = $this->userImporter->create($this->jwt);
 
-            // Creates a checkpoint that a user has been imported. 
-            $this->createLastUserUpdated($user);
-        } else {
-            // We need regular update data from sso server.
-            $this->updateIfNeedRegularUserUpdate($this->jwt, $user);
-        }
+                // Creates a checkpoint that a user has been imported. 
+                $this->createLastUserUpdated($user);
+            } else {
+                // We need regular update data from sso server.
+                $this->updateIfNeedRegularUserUpdate($this->jwt, $user);
+            }
 
-        if ($this->hasIdentityClaimsTrait($user)) {
-            /** @var \LaravelSsoClient\Traits\IdentityClaims $user */
-            $user->setClaims($this->jwt->getClaims());
+            if ($this->hasIdentityClaimsTrait($user)) {
+                /** @var \LaravelSsoClient\Traits\IdentityClaims $user */
+                $user->setClaims($this->jwt->getClaims());
+            }
+        } catch (\Throwable $exception) {
+            throw new UnprocessableUserException("Failed to retrieve identity or create one.", 422, $exception);
         }
 
         return $user;

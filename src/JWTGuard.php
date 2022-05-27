@@ -3,13 +3,13 @@
 namespace LaravelSsoClient;
 
 use Exception;
-use LaravelSsoClient\Contracts\IUserImporterService;
 use LaravelSsoClient\JWT;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Support\Facades\Log;
+use LaravelSsoClient\Exceptions\UnprocessableUserException;
 
 class JWTGuard implements Guard
 {
@@ -51,7 +51,7 @@ class JWTGuard implements Guard
     public function __construct(
         JWT $jwt,
         Request $request,
-        UserProvider $provider,
+        UserProvider $provider
     ) {
         $this->jwt = $jwt;
         $this->user = null;
@@ -119,11 +119,13 @@ class JWTGuard implements Guard
                 );
 
                 $this->user = $user;
-            } catch (\Throwable $exception) {
+            } catch (UnprocessableUserException $exception) {
                 Log::error('Failed to retrieve user from provider', [
-                    'innerException' => $exception
+                    'exception' => $exception
                 ]);
 
+                throw $exception;
+            } catch (\Throwable $exception) {
                 return null;
             }
         }
