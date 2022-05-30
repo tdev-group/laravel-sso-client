@@ -69,9 +69,9 @@ Route::middleware('auth:sso')->get('/protected', function (Illuminate\Http\Reque
 });
 ```
 
-# Advance Usage
+# Advanced Usage
 
-If you need another field for `user id` to correlate a user with the users from the sso service, add the following method to your `User` model.
+If your users already have a database identifier and you want to define another property for the identifier from single sign-on server, you can do this by simply adding the following method to your `User` model.
 
 ```
 class User extends Authenticatable
