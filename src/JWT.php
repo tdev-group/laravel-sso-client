@@ -61,10 +61,8 @@ class JWT
     public function isValid()
     {
         try {
-            $this->getClaims();
-
-            return true;
-        } catch (\Throwable $exception) {
+            return $this->validIssuer() && $this->validAudience();
+        } catch (\Throwable) {
             return false;
         }
     }
@@ -79,11 +77,9 @@ class JWT
     {
         try {
             if (is_null($this->claims)) {
-                $token = $this->getToken($this->request);
+                $token = $this->getToken();
 
-                $this->claims = $this->validIssuer(
-                    $this->decode($token)
-                );
+                $this->claims = $this->decode($token);
             }
 
             return Arr::get($this->claims, $name, $default);
@@ -138,54 +134,29 @@ class JWT
     /**
      * Returns the JWT token from request. Retrieves only Bearer tokens.
      * 
-     * @param Request $request An instance of the Request.
      * @return string
-     * @throws UnauthorizedException If the authorization header is empty.
-     * @throws UnauthorizedException If a token is not a bearer token.
+     * @throws UnexpectedValueException If the authorization header is empty.
+     * @throws UnexpectedValueException If a token is not a bearer token.
      */
     public function getToken()
     {
         if (is_null($this->token)) {
             $authorization = $this->getAuthorizationHeader();
 
-            if (!Str::startsWith($authorization, 'Bearer ')) {
-                throw new UnauthorizedException('Invalid authorization token. (Not Bearer token)');
+            if (!Str::startsWith($authorization, ['Bearer ', 'bearer '])) {
+                throw new UnexpectedValueException('Invalid authorization token. (Not Bearer token)');
             }
 
-            $token = trim(Str::substr($authorization, strlen('Bearer ')));
+            $token = trim(Str::substr($authorization, strlen('bearer ')));
 
             if (empty($token)) {
-                throw new UnauthorizedException('Invalid authorization token.');
+                throw new UnexpectedValueException('Invalid authorization token.');
             }
 
             $this->token = $token;
         }
 
         return $this->token;
-    }
-
-    /**
-     * Validates a token audience.
-     *
-     * @return bool
-     */
-    public function validAudience()
-    {
-        $audience = Config::get('sso-client.audience');
-
-        if (!$audience) {
-            return true;
-        }
-
-        $validateAudience = Config::get('sso-client.validate_audience', false);
-
-        if (!$validateAudience) {
-            return true;
-        }
-
-        $aud = Arr::wrap($this->getClaims(SsoClaimTypes::AUDIENCE, ""));
-
-        return in_array($audience, $aud);
     }
 
     /**
@@ -196,10 +167,10 @@ class JWT
      */
     public function getAuthorizationHeader()
     {
-        $authorization = $this->request->headers->get('Authorization');
+        $authorization = $this->request->header('Authorization');
 
         if (empty($authorization)) {
-            throw new UnauthorizedException('Authorization header is empty.');
+            throw new UnexpectedValueException('Authorization header is empty.');
         }
 
         return $authorization;
@@ -209,19 +180,39 @@ class JWT
      * Checks the issuer of the token.
      * If the issuer is valid returns the provided claims, otherwise throws an exception.
      *
-     * @param array $claims
-     * @return array Provided claims.
-     * @throws UnexpectedValueException If the claim issuer does not allowed.
+     * @throws UnauthorizedException If the claim issuer does not allowed.
      */
-    private function validIssuer(array $claims)
+    public function validIssuer()
     {
-        $issuer = $claims[SsoClaimTypes::ISSUER];
-        $authority = Config::get('sso-client.authority');
+        try {
+            $issuer = $this->getClaims(SsoClaimTypes::ISSUER, "");
+            $authority = Config::get('sso-client.authority');
 
-        if ($claims[SsoClaimTypes::ISSUER] !== $issuer) {
-            throw new UnexpectedValueException("Invalid issuer ({$issuer}), should be ({$authority}).");
+            return $issuer === $authority;
+        } catch (\Throwable) {
+            return false;
         }
+    }
 
-        return $claims;
+    /**
+     * Validates a token audience.
+     *
+     * @throws UnauthorizedException If the claim audience does not contain a required audience.
+     */
+    public function validAudience()
+    {
+        try {
+            $audience = Config::get('sso-client.audience');
+
+            if (!$audience) {
+                return true;
+            }
+
+            $aud = Arr::wrap($this->getClaims(SsoClaimTypes::AUDIENCE, ""));
+
+            return in_array($audience, $aud);
+        } catch (\Throwable) {
+            return false;
+        }
     }
 }

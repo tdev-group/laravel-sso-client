@@ -112,7 +112,7 @@ class JWTGuard implements Guard
             return $this->user;
         }
 
-        if ($this->jwt->isValid() && $this->jwt->validAudience()) {
+        if ($this->jwt->isValid()) {
             try {
                 $user = $this->provider->retrieveById(
                     $this->jwt->getSubject()
