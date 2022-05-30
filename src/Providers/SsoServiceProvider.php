@@ -34,7 +34,7 @@ class SsoServiceProvider extends ServiceProvider
             return new SsoUserProvider($app['hash'], $config['model'], $userImporter, $jwt);
         });
 
-        Auth::extend('jwt', function ($app, string $name, array $config) {
+        Auth::extend('sso', function ($app, string $name, array $config) {
             /** @var Auth $auth */
             $jwt = $app->make(JWT::class);
             $auth = $app->make('auth');
