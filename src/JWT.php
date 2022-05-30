@@ -62,7 +62,7 @@ class JWT
     {
         try {
             return $this->validIssuer() && $this->validAudience();
-        } catch (\Throwable) {
+        } catch (\Throwable $exception) {
             return false;
         }
     }
@@ -189,7 +189,7 @@ class JWT
             $authority = Config::get('sso-client.authority');
 
             return $issuer === $authority;
-        } catch (\Throwable) {
+        } catch (\Throwable $exception) {
             return false;
         }
     }
@@ -211,7 +211,7 @@ class JWT
             $aud = Arr::wrap($this->getClaims(SsoClaimTypes::AUDIENCE, ""));
 
             return in_array($audience, $aud);
-        } catch (\Throwable) {
+        } catch (\Throwable $exception) {
             return false;
         }
     }
