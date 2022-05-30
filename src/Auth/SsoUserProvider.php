@@ -69,11 +69,6 @@ class SsoUserProvider extends EloquentUserProvider implements UserProvider
                 // We need regular update data from sso server.
                 $this->updateIfNeedRegularUserUpdate($this->jwt, $user);
             }
-
-            if ($this->hasIdentityClaimsTrait($user)) {
-                /** @var \LaravelSsoClient\Traits\IdentityClaims $user */
-                $user->setClaims($this->jwt->getClaims());
-            }
         } catch (\Throwable $exception) {
             throw new UnprocessableUserException("Failed to retrieve identity or create one.", 422, $exception);
         }
@@ -88,18 +83,6 @@ class SsoUserProvider extends EloquentUserProvider implements UserProvider
         }
 
         return $model->getAuthIdentifierName();
-    }
-
-
-    /**
-     * Determine if the user is use the IdentityClaims trait.
-     *
-     * @param mixed $user
-     * @return boolean
-     */
-    private function hasIdentityClaimsTrait($user)
-    {
-        return in_array(IdentityClaims::class, class_uses($user), true);
     }
 
     /**

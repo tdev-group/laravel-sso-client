@@ -8,6 +8,7 @@ use LaravelSsoClient\Auth\SsoUserProvider;
 use LaravelSsoClient\JWT;
 use LaravelSsoClient\JWTGuard;
 use LaravelSsoClient\SsoClaimTypes;
+use LaravelSsoClient\Tests\Stubs\TestingUser;
 use Mockery;
 use Mockery\MockInterface;
 
@@ -228,7 +229,7 @@ class JWTGuardTest extends TestCase
     }
 
     /** @test */
-    public function hasUser_WithInvalidToken_ShouldReturnedNull(): void
+    public function user_WithInvalidToken_ShouldReturnedNull(): void
     {
         // Arrange
         /** @var MockInterface|JWT jwtToken */
@@ -245,5 +246,38 @@ class JWTGuardTest extends TestCase
 
         // Assert
         $this->assertNull($result);
+    }
+
+    /** @test */
+    public function getUserClaims_ShouldReturnedUserClaims(): void
+    {
+        // Arrange
+        $id = rand();
+        $user = new TestingUser();
+        $user->id = $id;
+
+        /** @var MockInterface|JWT jwtToken */
+        $jwtToken = Mockery::mock(JWT::class);
+        $jwtToken->shouldReceive('isValid')->andReturn(true);
+        $jwtToken->shouldReceive('getSubject')->andReturn($id);
+        $jwtToken->shouldReceive('getClaims')->andReturn([
+            'test' => 1,
+            'test_2' => 2
+        ]);
+
+        /** @var MockInterface|SsoUserProvider jwtToken */
+        $userProvider = Mockery::mock(SsoUserProvider::class);
+        $userProvider->shouldReceive('retrieveById')->andReturn($user);
+
+        $jwtGuard = new JWTGuard($jwtToken, $userProvider);
+
+        // Act 
+        /** @var TestingUser result */
+        $result = $jwtGuard->user();
+
+        // Assert
+        $this->assertEquals(1, $result->getClaim('test'));
+        $this->assertEquals(2, $result->getClaim('test_2'));
+        $this->assertIsArray($result->getClaims());
     }
 }

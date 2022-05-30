@@ -5,10 +5,10 @@ namespace LaravelSsoClient;
 use Exception;
 use LaravelSsoClient\JWT;
 use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Http\Request;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Support\Facades\Log;
+use LaravelSsoClient\Traits\IdentityClaims;
 use LaravelSsoClient\Exceptions\UnprocessableUserException;
 
 class JWTGuard implements Guard
@@ -108,6 +108,11 @@ class JWTGuard implements Guard
                     $this->jwt->getSubject()
                 );
 
+                if ($this->hasIdentityClaimsTrait($user)) {
+                    /** @var \LaravelSsoClient\Traits\IdentityClaims $user */
+                    $user->setClaims($this->jwt->getClaims());
+                }
+
                 $this->user = $user;
             } catch (UnprocessableUserException $exception) {
                 Log::error('Failed to retrieve user from provider', [
@@ -144,5 +149,28 @@ class JWTGuard implements Guard
         $this->user = $user;
 
         return $this;
+    }
+
+    /**
+     * Determine if the user is use the IdentityClaims trait.
+     *
+     * @param mixed $user
+     * @return boolean
+     */
+    private function hasIdentityClaimsTrait($user)
+    {
+        return in_array(IdentityClaims::class, $this->getUsedTraits($user), true);
+    }
+
+    private function getUsedTraits($classInstance)
+    {
+        $parentClasses = class_parents($classInstance);
+        $traits = class_uses($classInstance);
+
+        foreach ($parentClasses as $parentClass) {
+            $traits = array_merge($traits, class_uses($parentClass));
+        }
+
+        return $traits;
     }
 }
