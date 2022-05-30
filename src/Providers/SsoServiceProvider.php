@@ -4,9 +4,9 @@ namespace LaravelSsoClient\Providers;
 
 use Illuminate\Contracts\Auth\UserProvider;
 use LaravelSsoClient\Auth\SsoUserProvider;
-use LaravelSsoClient\Contracts\IUserImporterService;
+use LaravelSsoClient\Contracts\IUserManagerService;
 use LaravelSsoClient\Services\SsoService;
-use LaravelSsoClient\Services\UserImporterService;
+use LaravelSsoClient\Services\UserManagerService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 use LaravelSsoClient\JWT;
@@ -29,7 +29,7 @@ class SsoServiceProvider extends ServiceProvider
 
         Auth::provider('sso-server', function ($app, array $config) {
             $jwt = $app->make(JWT::class);
-            $userImporter = $app->make(IUserImporterService::class);
+            $userImporter = $app->make(IUserManagerService::class);
 
             return new SsoUserProvider($app['hash'], $config['model'], $userImporter, $jwt);
         });
@@ -38,12 +38,11 @@ class SsoServiceProvider extends ServiceProvider
             /** @var Auth $auth */
             $jwt = $app->make(JWT::class);
             $auth = $app->make('auth');
-            $request = $app->make('request');
 
             /** @var UserProvider $userProvider */
             $userProvider = $auth->createUserProvider($config['provider']);
 
-            return new JWTGuard($jwt, $request, $userProvider);
+            return new JWTGuard($jwt, $userProvider);
         });
     }
 
@@ -59,6 +58,6 @@ class SsoServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(SsoService::class);
-        $this->app->singleton(IUserImporterService::class, UserImporterService::class);
+        $this->app->singleton(IUserManagerService::class, UserManagerService::class);
     }
 }

@@ -9,7 +9,7 @@ use Illuminate\Contracts\Hashing\Hasher as HasherContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
-use LaravelSsoClient\Contracts\IUserImporterService;
+use LaravelSsoClient\Contracts\IUserManagerService;
 use LaravelSsoClient\Exceptions\UnprocessableUserException;
 use LaravelSsoClient\JWT;
 
@@ -23,11 +23,11 @@ class SsoUserProvider extends EloquentUserProvider implements UserProvider
     protected $jwt;
 
     /**
-     * Gets a instance of the IUserImporterService.
+     * Gets a instance of the IUserManagerService.
      *
-     * @var IUserImporterService
+     * @var IUserManagerService
      */
-    protected $userImporter;
+    protected $userManager;
 
     /**
      * Create a new database user provider.
@@ -36,12 +36,12 @@ class SsoUserProvider extends EloquentUserProvider implements UserProvider
      * @param  string  $model
      * @return void
      */
-    public function __construct(HasherContract $hasher, $model, IUserImporterService $userImporter, JWT $jwt)
+    public function __construct(HasherContract $hasher, $model, IUserManagerService $userManager, JWT $jwt)
     {
         parent::__construct($hasher, $model);
 
         $this->jwt = $jwt;
-        $this->userImporter = $userImporter;
+        $this->userManager = $userManager;
     }
 
     /**
@@ -61,7 +61,7 @@ class SsoUserProvider extends EloquentUserProvider implements UserProvider
         try {
             // If the user provider is not returned the user, we should create one.
             if (is_null($user)) {
-                $user = $this->userImporter->create($this->jwt);
+                $user = $this->userManager->import($this->jwt);
 
                 // Creates a checkpoint that a user has been imported. 
                 $this->createLastUserUpdated($user);
@@ -129,7 +129,7 @@ class SsoUserProvider extends EloquentUserProvider implements UserProvider
 
         // If a cache point expires, we update user data. 
         Cache::remember($identifier, $lifetime, function () use ($jwt, $user,  $identifier) {
-            $user = $this->userImporter->update($jwt, $user);
+            $user = $this->userManager->update($jwt, $user);
 
             return $identifier;
         });

@@ -6,7 +6,7 @@ use LaravelSsoClient\JWT;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 
-interface IUserImporterService
+interface IUserManagerService
 {
     /**
      * Creates a new user.
@@ -14,7 +14,7 @@ interface IUserImporterService
      * @param JWT $jwt A JWT token.
      * @return Authenticatable|Model
      */
-    public function create(JWT $jwt);
+    public function import(JWT $jwt);
 
     /**
      * Update the user from SSO server.

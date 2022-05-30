@@ -28,13 +28,6 @@ class JWTGuard implements Guard
     protected $user;
 
     /**
-     * Gets the request instance.
-     *
-     * @var Request
-     */
-    protected $request;
-
-    /**
      * Gets a instance of the user provider.
      *
      * @var UserProvider
@@ -45,17 +38,14 @@ class JWTGuard implements Guard
      * Create a new authentication guard.
      *
      * @param JWT $jwt
-     * @param Request $request
      * @param UserProvider $request
      */
     public function __construct(
         JWT $jwt,
-        Request $request,
         UserProvider $provider
     ) {
         $this->jwt = $jwt;
         $this->user = null;
-        $this->request = $request;
         $this->provider = $provider;
     }
 

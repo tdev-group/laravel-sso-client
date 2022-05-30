@@ -9,6 +9,10 @@ use Mockery;
 use Mockery\MockInterface;
 use UnexpectedValueException;
 
+/**
+ * @group unit
+ * @group jwt
+ */
 class JWTTest extends TestCase
 {
     /** @test */
@@ -104,7 +108,7 @@ class JWTTest extends TestCase
     ///////////////////////////////////////////////////////////////////////
 
     /** @test */
-    public function validAudience_WithNormalToken_ShouldReturnedTrue(): void
+    public function validAudience_WithValidToken_ShouldReturnedTrue(): void
     {
         // Arrange
         $audience = "https://sso.talan.group";
@@ -171,6 +175,33 @@ class JWTTest extends TestCase
 
         // Assert
         $this->assertFalse($result);
+    }
+
+    /** @test */
+    public function validAudience_WithMultipleAudiences_ShouldReturnedTrue(): void
+    {
+        // Arrange
+        $audience = "https://sso.talan.group";
+        $token = $this->getToken();
+
+        /** @var MockInterface|JWT jwtToken */
+        $jwtToken = Mockery::mock(JWT::class);
+        $jwtToken->makePartial();
+        $jwtToken->shouldReceive('decode')->andReturn([
+            SsoClaimTypes::AUDIENCE => [
+                $audience,
+                "https://another-api.talan.group"
+            ]
+        ]);
+        $jwtToken->shouldReceive('getToken')->andReturn($token);
+
+        $this->app['config']->set('sso-client.audience', $audience);
+
+        // Act 
+        $result = $jwtToken->validAudience();
+
+        // Assert
+        $this->assertTrue($result);
     }
 
     /** @test */

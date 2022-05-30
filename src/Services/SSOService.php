@@ -11,13 +11,6 @@ use Illuminate\Support\Facades\Log;
 class SsoService
 {
     /**
-     * Gets the JWT token.
-     *
-     * @var JWT
-     */
-    protected $jwt;
-
-    /**
      * Gets the public keys cache name.
      */
     private const PUBLIC_KEYS_CACHE_NAME = 'jwt-guard::public-keys';
@@ -28,25 +21,18 @@ class SsoService
     private const DISCOVERY_DOCUMENT_CACHE_NAME = 'jwt-guard::discovery';
 
     /**
-     * Create a new sso service.
+     * Returns a user info by jwt token.
      *
-     * @param JWT $jwt
-     * @return void
+     * @param JWT $jwt Any JWT token.
+     * @return array
      */
-    public function __construct(JWT $jwt)
-    {
-        $this->jwt = $jwt;
-    }
-
-    public function getUserInfo(string $issuer = null)
+    public function getUserInfo(JWT $jwt)
     {
         try {
-            if (is_null($issuer)) {
-                $issuer = static::getAuthority();
-            }
+            $issuer = static::getAuthority();
 
             $url = $issuer . Config::get('sso-client.urls.userinfo');
-            $bearer = $this->jwt->getAuthorizationHeader();
+            $bearer = $jwt->getAuthorizationHeader();
 
             $response = (new Client())->get($url, [
                 'verify' => Config::get('sso-client.authority_verify_ssl', true),

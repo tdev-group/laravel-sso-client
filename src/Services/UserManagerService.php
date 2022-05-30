@@ -4,12 +4,12 @@ namespace LaravelSsoClient\Services;
 
 use Illuminate\Container\Container;
 use LaravelSsoClient\JWT;
-use LaravelSsoClient\Contracts\IUserImporterService;
+use LaravelSsoClient\Contracts\IUserManagerService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 
-class UserImporterService implements IUserImporterService
+class UserManagerService implements IUserManagerService
 {
     /**
      * Gets import handlers.
@@ -18,11 +18,19 @@ class UserImporterService implements IUserImporterService
      */
     private $handlers;
 
-    public function __construct()
+    /**
+     * Gets an instance of the SsoService.
+     *
+     * @var SsoService
+     */
+    private $ssoService;
+
+    public function __construct(SsoService $ssoService)
     {
         $this->handlers = [];
+        $this->ssoService = $ssoService;
 
-        $classes = Config::get('sso-client.import_handlers');
+        $classes = Config::get('sso-client.import_handlers', []);
         foreach ($classes as $class) {
             $this->handlers[] = Container::getInstance()->make($class);
         }
@@ -31,19 +39,9 @@ class UserImporterService implements IUserImporterService
     /**
      * {@inheritDoc}
      */
-    public function create(JWT $jwt)
+    public function import(JWT $jwt)
     {
-        try {
-            $model = $this->createModel();
-
-            return $this->update($jwt, $model);
-        } catch (\Throwable $exception) {
-            Log::error('Failed to create user model', [
-                'innerException' => $exception
-            ]);
-
-            throw $exception;
-        }
+        return $this->update($jwt, $this->createModel());
     }
 
     /**
@@ -52,10 +50,8 @@ class UserImporterService implements IUserImporterService
     public function update(JWT $jwt, Model $user)
     {
         try {
-            $ssoService = new SsoService($jwt);
-
             $claims = $jwt->getClaims();
-            $userInfo = $ssoService->getUserInfo();
+            $userInfo = $this->ssoService->getUserInfo($jwt);
 
             foreach ($this->handlers as $handler) {
                 $handler->handle($user, $claims, $userInfo);
