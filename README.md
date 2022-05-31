@@ -69,6 +69,49 @@ Route::middleware('auth:sso')->get('/protected', function (Illuminate\Http\Reque
 });
 ```
 
+# Import Users
+
+To import users from the single sign-on server into local database you need to create `UserImportHandler`.
+
+```
+namespace App\Handlers;
+
+use App\Models\User;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
+use LaravelSsoClient\Contracts\IImportHandler;
+use LaravelSsoClient\SsoClaimTypes;
+
+class AccountImportHandler implements IImportHandler
+{
+    /**
+     * Handler user imports.
+     *
+     * @param User|Model $user An new user model.
+     * @param array $claims The list of the user claims.
+     * @param array $userinfo The user information.
+     * @return Model The user model for chaining.
+     */
+    public function handle(Model $user, array $claims, array $userinfo)
+    {
+        $user->guid = Arr::get($userinfo, SsoClaimTypes::SUBJECT, $user->guid);
+        $user->email = Arr::get($userinfo, SsoClaimTypes::EMAIL, $user->email);
+        $user->fullName = Arr::get($userinfo, SsoClaimTypes::NAME, $user->fullName);
+        $user->displayName = Arr::get($userinfo, SsoClaimTypes::NAME, $user->displayName)
+
+        return $user;
+    }
+```
+
+Don't forget to register a handler in `sso-server.php ` file.
+
+```
+'import_handlers' => [
+    ...
+    AccountImportHandler::class
+],
+```
+
 # Advanced Usage
 
 If your users already have a database identifier and you want to define another property for the identifier from single sign-on server, you can do this by simply adding the following method to your `User` model.
