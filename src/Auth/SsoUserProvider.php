@@ -7,11 +7,13 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Contracts\Hashing\Hasher as HasherContract;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use LaravelSsoClient\Contracts\IUserManagerService;
 use LaravelSsoClient\Exceptions\UnprocessableUserException;
 use LaravelSsoClient\JWT;
+use LaravelSsoClient\SsoClaimTypes;
 
 class SsoUserProvider extends EloquentUserProvider implements UserProvider
 {
@@ -52,37 +54,41 @@ class SsoUserProvider extends EloquentUserProvider implements UserProvider
      */
     public function retrieveById($identifier)
     {
+        /** @var Authenticatable|null $user */
+        $user = null;
         $model = $this->createModel();
 
-        $user = $model->newQuery()
-            ->where($this->getIdentifierName($model), $identifier)
-            ->first();
-
-        try {
-            // If the user provider is not returned the user, we should create one.
-            if (is_null($user)) {
-                $user = $this->userManager->import($this->jwt);
-
-                // Creates a checkpoint that a user has been imported. 
-                $this->createLastUserUpdated($user);
-            } else {
-                // We need regular update data from sso server.
-                $this->updateIfNeedRegularUserUpdate($this->jwt, $user);
-            }
-        } catch (\Throwable $exception) {
-            throw new UnprocessableUserException("Failed to retrieve identity or create one.", 422, $exception);
+        if (method_exists($model, 'getUserByIdForSsoClient')) {
+            $user = $model->findUserByIdForSsoClient($identifier)->first();
+        } else {
+            $user = $model->newQuery()
+                ->where($model->getAuthIdentifierName(), $identifier)
+                ->first();
         }
 
-        return $user;
+        return $this->tryImportOrUpdate($user);
     }
 
-    private function getIdentifierName($model)
+    /**
+     * Retrieve a user by their claims.
+     *
+     * @param mixed $identifier
+     * @param array $claims
+     * @return \Illuminate\Contracts\Auth\Authenticatable|null
+     */
+    public function retrieveByClaims($identifier, $claims)
     {
-        if (method_exists($model, 'getSsoIdentifierName')) {
-            return $model->getSsoIdentifierName();
+        /** @var Authenticatable|null $user */
+        $user = null;
+        $model = $this->createModel();
+
+        if (!method_exists($model, 'findUserByClaimsForSsoClient')) {
+            return $this->retrieveById($identifier);
         }
 
-        return $model->getAuthIdentifierName();
+        $user = $model->findUserByClaimsForSsoClient($claims)->first();
+
+        return $this->tryImportOrUpdate($user);
     }
 
     /**
@@ -97,7 +103,7 @@ class SsoUserProvider extends EloquentUserProvider implements UserProvider
 
         // Creates a cache point when a user is last updated. 
         // When the cache point expires, the user data update time comes.
-        Cache::put($identifier, $identifier, $lifetime);
+        Cache::put('SsoUserProvider' . $identifier, $identifier, $lifetime);
     }
 
     /**
@@ -111,10 +117,35 @@ class SsoUserProvider extends EloquentUserProvider implements UserProvider
         $identifier = $user->getAuthIdentifier();
 
         // If a cache point expires, we update user data. 
-        Cache::remember($identifier, $lifetime, function () use ($jwt, $user,  $identifier) {
+        Cache::remember('SsoUserProvider' . $identifier, $lifetime, function () use ($jwt, $user,  $identifier) {
             $user = $this->userManager->update($jwt, $user);
 
             return $identifier;
         });
+    }
+
+    /**
+     * Tries to update or import a user from the single sign-on server.
+     *
+     * @param Authenticatable|null $user
+     */
+    private function tryImportOrUpdate($user)
+    {
+        try {
+            // If the user provider is not returned the user, we should create one.
+            if (is_null($user)) {
+                $user = $this->userManager->import($this->jwt);
+
+                // Creates a checkpoint that a user has been imported. 
+                $this->createLastUserUpdated($user);
+            } else {
+                // We need regular update data from sso server.
+                $this->updateIfNeedRegularUserUpdate($this->jwt, $user);
+            }
+
+            return $user;
+        } catch (\Throwable $exception) {
+            throw new UnprocessableUserException("Failed to retrieve identity or create one.", 422, $exception);
+        }
     }
 }

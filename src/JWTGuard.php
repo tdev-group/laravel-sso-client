@@ -8,6 +8,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Support\Facades\Log;
+use LaravelSsoClient\Auth\SsoUserProvider;
 use LaravelSsoClient\Traits\IdentityClaims;
 use LaravelSsoClient\Exceptions\UnprocessableUserException;
 
@@ -104,9 +105,18 @@ class JWTGuard implements Guard
 
         if ($this->jwt->isValid()) {
             try {
-                $user = $this->provider->retrieveById(
-                    $this->jwt->getSubject()
-                );
+                $user = null;
+
+                if ($this->provider instanceof SsoUserProvider) {
+                    $user = $this->provider->retrieveByClaims(
+                        $this->jwt->getSubject(),
+                        $this->jwt->getClaims()
+                    );
+                } else {
+                    $user = $this->provider->retrieveById(
+                        $this->jwt->getSubject()
+                    );
+                }
 
                 if ($this->hasIdentityClaimsTrait($user)) {
                     /** @var \LaravelSsoClient\Traits\IdentityClaims $user */
