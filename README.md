@@ -112,22 +112,33 @@ Don't forget to register a handler in `sso-server.php ` file.
 ],
 ```
 
-# Advanced Usage
+# Users Correlations
 
-If your users already have a database identifier and you want to define another property for the identifier from single sign-on server, you can do this by simply adding the following method to your `User` model.
+If your users already have a database identifier and you want to define another property for the identifier from single sign-on server, you can do this by simply adding the following methods to your `User` model.
 
 ```
 class User extends Authenticatable
 {
     /**
-     * Gets the sso identifier name.
+     * Finds a user by identifier from single sign-on server.
      *
-     * @return string
+     * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function getSsoIdentifierName()
+    public function findUserByIdentifierForSsoClient($subject)
     {
-        return 'sso_user_id';
+        return $this->where('guid', $subject);
+    }
+
+    /**
+     * Correlates users from the single sign-on server with the database users.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function correlateUserForSsoClient($identifier, $claims)
+    {
+        // return $this->where('guid', $identifier);
+
+        return $this->where('email', $claims[SsoClaimTypes::Email])->where(...);
     }
 }
-
 ```
