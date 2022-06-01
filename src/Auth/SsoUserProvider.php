@@ -7,13 +7,11 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Contracts\Hashing\Hasher as HasherContract;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use LaravelSsoClient\Contracts\IUserManagerService;
 use LaravelSsoClient\Exceptions\UnprocessableUserException;
 use LaravelSsoClient\JWT;
-use LaravelSsoClient\SsoClaimTypes;
 
 class SsoUserProvider extends EloquentUserProvider implements UserProvider
 {
@@ -103,7 +101,7 @@ class SsoUserProvider extends EloquentUserProvider implements UserProvider
 
         // Creates a cache point when a user is last updated. 
         // When the cache point expires, the user data update time comes.
-        Cache::put('SsoUserProvider' . $identifier, $identifier, $lifetime);
+        Cache::put('sso-user-provider:' . $identifier, $identifier, $lifetime);
     }
 
     /**
@@ -117,7 +115,7 @@ class SsoUserProvider extends EloquentUserProvider implements UserProvider
         $identifier = $user->getAuthIdentifier();
 
         // If a cache point expires, we update user data. 
-        Cache::remember('SsoUserProvider' . $identifier, $lifetime, function () use ($jwt, $user,  $identifier) {
+        Cache::remember('sso-user-provider:' . $identifier, $lifetime, function () use ($jwt, $user,  $identifier) {
             $user = $this->userManager->update($jwt, $user);
 
             return $identifier;
