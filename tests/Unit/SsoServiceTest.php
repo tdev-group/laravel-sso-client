@@ -31,7 +31,7 @@ class SsoServiceTest extends TestCase
 
         /** @var MockInterface|Client httpClient */
         $httpClient = Mockery::mock(Client::class);
-        $httpClient->shouldReceive('get->getBody->getContents')->andReturn($token);
+        $httpClient->shouldReceive('get->getBody')->andReturn(json_encode($token));
 
         /** @var MockInterface|SsoService service */
         $service = Mockery::mock(SsoService::class);
@@ -54,7 +54,7 @@ class SsoServiceTest extends TestCase
 
         /** @var MockInterface|Client httpClient */
         $httpClient = Mockery::mock(Client::class);
-        $httpClient->shouldReceive('get->getBody->getContents')->andReturn($token);
+        $httpClient->shouldReceive('get->getBody')->andReturn(json_encode($token));
 
         /** @var MockInterface|SsoService service */
         $service = Mockery::mock(SsoService::class);
@@ -80,7 +80,7 @@ class SsoServiceTest extends TestCase
 
         /** @var MockInterface|Client httpClient */
         $httpClient = Mockery::mock(Client::class);
-        $httpClient->shouldReceive('get->getBody->getContents')->andReturn($token);
+        $httpClient->shouldReceive('get->getBody')->andReturn(json_encode($token));
 
         /** @var MockInterface|SsoService service */
         $service = Mockery::mock(SsoService::class);
@@ -103,7 +103,7 @@ class SsoServiceTest extends TestCase
 
         /** @var MockInterface|Client httpClient */
         $httpClient = Mockery::mock(Client::class);
-        $httpClient->shouldReceive('get->getBody->getContents')->andReturn($token);
+        $httpClient->shouldReceive('get->getBody')->andReturn(json_encode($token));
 
         /** @var MockInterface|SsoService service */
         $service = Mockery::mock(SsoService::class);
@@ -129,7 +129,7 @@ class SsoServiceTest extends TestCase
 
         /** @var MockInterface|Client httpClient */
         $httpClient = Mockery::mock(Client::class);
-        $httpClient->shouldReceive('get->getBody->getContents')->andReturn($document);
+        $httpClient->shouldReceive('get->getBody')->andReturn(json_encode($document));
 
         /** @var MockInterface|SsoService service */
         $service = Mockery::mock(SsoService::class);
@@ -154,7 +154,7 @@ class SsoServiceTest extends TestCase
 
         /** @var MockInterface|Client httpClient */
         $httpClient = Mockery::mock(Client::class);
-        $httpClient->shouldReceive('get->getBody->getContents')->andReturn($keys);
+        $httpClient->shouldReceive('get->getBody')->andReturn(json_encode($keys));
 
         /** @var MockInterface|SsoService service */
         $service = Mockery::mock(SsoService::class);
@@ -181,7 +181,7 @@ class SsoServiceTest extends TestCase
 
         /** @var MockInterface|Client httpClient */
         $httpClient = Mockery::mock(Client::class);
-        $httpClient->shouldReceive('get->getBody->getContents')->andReturn($userinfo);
+        $httpClient->shouldReceive('get->getBody')->andReturn(json_encode($userinfo));
 
         /** @var MockInterface|SsoService service */
         $service = Mockery::mock(SsoService::class);
@@ -207,7 +207,7 @@ class SsoServiceTest extends TestCase
 
         /** @var MockInterface|Client httpClient */
         $httpClient = Mockery::mock(Client::class);
-        $httpClient->shouldReceive('post->getBody->getContents')->andReturn($userId);
+        $httpClient->shouldReceive('post->getBody')->andReturn(json_encode($userId));
 
         /** @var MockInterface|SsoService service */
         $service = Mockery::mock(SsoService::class);

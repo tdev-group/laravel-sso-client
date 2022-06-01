@@ -48,7 +48,7 @@ class SsoService
                 'json' => $request->toArray()
             ]);
 
-            return $response->getBody()->getContents();
+            return json_decode($response->getBody(), true);
         } catch (\Throwable $exception) {
             Log::error('Failed to export a user to the sso server', [
                 'innerException' => $exception
@@ -81,7 +81,7 @@ class SsoService
                 ]
             ]);
 
-            return $response->getBody()->getContents();
+            return json_decode($response->getBody(), true);
         } catch (\Throwable $exception) {
             Log::error('Failed to get user\'s information from the authority service', [
                 'innerException' => $exception
@@ -107,7 +107,7 @@ class SsoService
             try {
                 $response = static::makeHttpClient($authority)->get($url, ['verify' => Config::get('sso-client.authority_verify_ssl', true)]);
 
-                return $response->getBody()->getContents();
+                return json_decode($response->getBody(), true);
             } catch (\Throwable $exception) {
                 Log::error('Failed to get public keys from the authority service', [
                     'innerException' => $exception
@@ -133,7 +133,7 @@ class SsoService
             try {
                 $response = static::makeHttpClient($authority)->get($uri, ['verify' => Config::get('sso-client.authority_verify_ssl', true)]);
 
-                return $response->getBody()->getContents();
+                return json_decode($response->getBody(), true);
             } catch (\Throwable $exception) {
                 Log::error('Failed to get discovery information from the authority service', [
                     'innerException' => $exception
@@ -169,7 +169,7 @@ class SsoService
             ]
         ]);
 
-        $responseData = $response->getBody()->getContents();
+        $responseData = json_decode($response->getBody(), true);
 
         $expiresIn = $responseData['expires_in'];
         $accessToken = $responseData['access_token'];
