@@ -68,7 +68,7 @@ class SsoUserProvider extends EloquentUserProvider implements UserProvider
             $user = $model->correlateUserForSsoClient(
                 $identifier,
                 $this->jwt->getClaims()
-            );
+            )->first();
         }
 
         return $this->tryImportOrUpdate($user);
