@@ -56,35 +56,20 @@ class SsoUserProvider extends EloquentUserProvider implements UserProvider
         $user = null;
         $model = $this->createModel();
 
-        if (method_exists($model, 'getUserByIdForSsoClient')) {
-            $user = $model->findUserByIdForSsoClient($identifier)->first();
+        if (method_exists($model, 'findUserByIdentifierForSsoClient')) {
+            $user = $model->findUserByIdentifierForSsoClient($identifier)->first();
         } else {
             $user = $model->newQuery()
                 ->where($model->getAuthIdentifierName(), $identifier)
                 ->first();
         }
 
-        return $this->tryImportOrUpdate($user);
-    }
-
-    /**
-     * Retrieve a user by their claims.
-     *
-     * @param mixed $identifier
-     * @param array $claims
-     * @return \Illuminate\Contracts\Auth\Authenticatable|null
-     */
-    public function retrieveByClaims($identifier, $claims)
-    {
-        /** @var Authenticatable|null $user */
-        $user = null;
-        $model = $this->createModel();
-
-        if (!method_exists($model, 'findUserByClaimsForSsoClient')) {
-            return $this->retrieveById($identifier);
+        if (is_null($user) && method_exists($model, 'correlateUserForSsoClient')) {
+            $user = $model->correlateUserForSsoClient(
+                $identifier,
+                $this->jwt->getClaims()
+            );
         }
-
-        $user = $model->findUserByClaimsForSsoClient($claims)->first();
 
         return $this->tryImportOrUpdate($user);
     }
