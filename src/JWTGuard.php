@@ -105,18 +105,9 @@ class JWTGuard implements Guard
 
         if ($this->jwt->isValid()) {
             try {
-                $user = null;
-
-                if ($this->provider instanceof SsoUserProvider) {
-                    $user = $this->provider->retrieveByClaims(
-                        $this->jwt->getSubject(),
-                        $this->jwt->getClaims()
-                    );
-                } else {
-                    $user = $this->provider->retrieveById(
-                        $this->jwt->getSubject()
-                    );
-                }
+                $user = $this->provider->retrieveById(
+                    $this->jwt->getSubject()
+                );
 
                 if ($this->hasIdentityClaimsTrait($user)) {
                     /** @var \LaravelSsoClient\Traits\IdentityClaims $user */
