@@ -8,7 +8,7 @@ use LaravelSsoClient\Contracts\IUserManagerService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
-use LaravelSsoClient\Exceptions\FailedToExportUserException;
+use LaravelSsoClient\Exceptions\UserExportFailedException;
 use LaravelSsoClient\Requests\CreateUserRequest;
 
 class UserManagerService implements IUserManagerService
@@ -54,7 +54,7 @@ class UserManagerService implements IUserManagerService
         try {
             return $this->ssoService->exportUser($request);
         } catch (\Throwable $exception) {
-            throw new FailedToExportUserException(
+            throw new UserExportFailedException(
                 "Failed to export a user to the sso server",
                 422,
                 $exception

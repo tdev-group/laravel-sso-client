@@ -7,6 +7,7 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
+use LaravelSsoClient\Exceptions\UserExportFailedException;
 use LaravelSsoClient\Requests\CreateUserRequest;
 
 class SsoService
@@ -159,7 +160,7 @@ class SsoService
         $uri = Config::get('sso-client.urls.token');
         $authority = $authority ?? static::getAuthority();
 
-        $response = static::makeHttpClient($authority)->get($uri, [
+        $response = static::makeHttpClient($authority)->post($uri, [
             'verify' => Config::get('sso-client.authority_verify_ssl', true),
             'form_params' => [
                 "client_id" => Config::get('sso-client.client_credentials.client_id', true),
@@ -169,17 +170,31 @@ class SsoService
             ]
         ]);
 
-        $responseData = json_decode($response->getBody(), true);
+        $statusCode = $response->getStatusCode();
 
-        $expiresIn = $responseData['expires_in'];
-        $accessToken = $responseData['access_token'];
+        if ($statusCode === 200) {
+            $responseData = json_decode($response->getBody(), true);
 
-        // Converts seconds to minutes and subtract 2 minutes.
-        $cacheLifetime = ($expiresIn / 60) - 2;
+            $expiresIn = $responseData['expires_in'];
+            $accessToken = $responseData['access_token'];
 
-        Cache::add(self::CLIENT_CREDENTIAL_TOKEN_CACHE_NAME, $accessToken, $cacheLifetime);
+            // Converts seconds to minutes and subtract 2 minutes.
+            $cacheLifetime = ($expiresIn / 60) - 2;
 
-        return $accessToken;
+            Cache::add(self::CLIENT_CREDENTIAL_TOKEN_CACHE_NAME, $accessToken, $cacheLifetime);
+
+            return $accessToken;
+        }
+
+        Log::error("Request a client credentials token failed", [
+            "authority" => $authority,
+            "status_code" => $statusCode,
+            "error_message" => $response->getBody()->getContents(),
+        ]);
+
+        throw new UserExportFailedException(
+            "Request a client credentials token failed, the server returned (status code: {$statusCode})",
+        );
     }
 
     public function getClientCredentialsBearerToken($authority = null)
