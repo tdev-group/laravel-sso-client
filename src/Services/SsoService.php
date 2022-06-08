@@ -7,6 +7,7 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
+use LaravelSsoClient\Exceptions\RequestTokenFailedException;
 use LaravelSsoClient\Exceptions\UserExportFailedException;
 use LaravelSsoClient\Requests\CreateUserRequest;
 
@@ -192,7 +193,7 @@ class SsoService
             "error_message" => $response->getBody()->getContents(),
         ]);
 
-        throw new UserExportFailedException(
+        throw new RequestTokenFailedException(
             "Request a client credentials token failed, the server returned (status code: {$statusCode})",
         );
     }

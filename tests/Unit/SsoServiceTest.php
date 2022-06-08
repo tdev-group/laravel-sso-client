@@ -4,6 +4,7 @@ namespace LaravelSsoClient\Tests\Unit;
 
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Cache;
+use LaravelSsoClient\Exceptions\RequestTokenFailedException;
 use LaravelSsoClient\JWT;
 use LaravelSsoClient\Requests\CreateUserRequest;
 use LaravelSsoClient\Services\SsoService;
@@ -31,7 +32,8 @@ class SsoServiceTest extends TestCase
 
         /** @var MockInterface|Client httpClient */
         $httpClient = Mockery::mock(Client::class);
-        $httpClient->shouldReceive('get->getBody')->andReturn(json_encode($token));
+        $httpClient->shouldReceive('post->getStatusCode')->andReturn(200);
+        $httpClient->shouldReceive('post->getBody')->andReturn(json_encode($token));
 
         /** @var MockInterface|SsoService service */
         $service = Mockery::mock(SsoService::class);
@@ -47,6 +49,33 @@ class SsoServiceTest extends TestCase
     }
 
     /** @test */
+    public function getClientCredentialsToken_WithSsoServerError_ShouldReturnedBearerToken(): void
+    {
+        // Arrange
+        $token = static::$token;
+
+        /** @var MockInterface|Client httpClient */
+        $httpClient = Mockery::mock(Client::class);
+        $httpClient->shouldReceive('post->getStatusCode')->andReturn(400);
+        $httpClient->shouldReceive('post->getBody->getContents')->andReturn("Bad request");
+
+        /** @var MockInterface|SsoService service */
+        $service = Mockery::mock(SsoService::class);
+        $service->makePartial();
+        $service->shouldReceive('makeHttpClient')->andReturn($httpClient);
+
+        // Assert
+        $this->expectException(RequestTokenFailedException::class);
+        $this->expectExceptionMessage('Request a client credentials token failed, the server returned (status code: 400)');
+
+        // Act 
+        $service->getClientCredentialsBearerToken();
+
+        // Assert
+        $this->assertNull(Cache::get('jwt-guard::client-credentials-token'));
+    }
+
+    /** @test */
     public function getClientCredentialsToken_WithCachedToken_ShouldReturnedcachedToken(): void
     {
         // Arrange
@@ -54,7 +83,8 @@ class SsoServiceTest extends TestCase
 
         /** @var MockInterface|Client httpClient */
         $httpClient = Mockery::mock(Client::class);
-        $httpClient->shouldReceive('get->getBody')->andReturn(json_encode($token));
+        $httpClient->shouldReceive('post->getStatusCode')->andReturn(200);
+        $httpClient->shouldReceive('post->getBody')->andReturn(json_encode($token));
 
         /** @var MockInterface|SsoService service */
         $service = Mockery::mock(SsoService::class);
@@ -80,7 +110,8 @@ class SsoServiceTest extends TestCase
 
         /** @var MockInterface|Client httpClient */
         $httpClient = Mockery::mock(Client::class);
-        $httpClient->shouldReceive('get->getBody')->andReturn(json_encode($token));
+        $httpClient->shouldReceive('post->getStatusCode')->andReturn(200);
+        $httpClient->shouldReceive('post->getBody')->andReturn(json_encode($token));
 
         /** @var MockInterface|SsoService service */
         $service = Mockery::mock(SsoService::class);
@@ -103,7 +134,8 @@ class SsoServiceTest extends TestCase
 
         /** @var MockInterface|Client httpClient */
         $httpClient = Mockery::mock(Client::class);
-        $httpClient->shouldReceive('get->getBody')->andReturn(json_encode($token));
+        $httpClient->shouldReceive('post->getStatusCode')->andReturn(200);
+        $httpClient->shouldReceive('post->getBody')->andReturn(json_encode($token));
 
         /** @var MockInterface|SsoService service */
         $service = Mockery::mock(SsoService::class);
