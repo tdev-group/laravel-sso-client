@@ -4,6 +4,6 @@ namespace LaravelSsoClient\Exceptions;
 
 use Exception;
 
-class FailedToExportUserException extends Exception
+class UserExportFailedException extends Exception
 {
 }
