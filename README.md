@@ -17,7 +17,7 @@ Or
 Use composer to install
 
 ```
-composer require tdev-group/laravel-sso-client:1.2.3
+composer require tdev-group/laravel-sso-client:^1.2.4
 ```
 
 Open `config/app.php` and register the required service providers above your application providers.
