@@ -69,7 +69,7 @@ class UserManagerService implements IUserManagerService
     {
         try {
             $claims = $jwt->getClaims();
-            $userInfo = $this->ssoService->getUserInfo($jwt);
+            $userInfo = $jwt->getUserInfo();
 
             foreach ($this->handlers as $handler) {
                 $handler->handle($user, $claims, $userInfo);

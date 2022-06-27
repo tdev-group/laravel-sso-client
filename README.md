@@ -17,7 +17,7 @@ Or
 Use composer to install
 
 ```
-composer require tdev-group/laravel-sso-client:^1.2.4
+composer require tdev-group/laravel-sso-client:^1.2.5
 ```
 
 Open `config/app.php` and register the required service providers above your application providers.
@@ -134,11 +134,11 @@ class User extends Authenticatable
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function correlateUserForSsoClient($identifier, $claims)
+    public function correlateUserForSsoClient($identifier, $claims, $userInfo)
     {
         // return $this->where('guid', $identifier);
 
-        return $this->where('email', $claims[SsoClaimTypes::Email])->where(...);
+        return $this->where('email', $userInfo[SsoClaimTypes::Email])->where(...);
     }
 }
 ```

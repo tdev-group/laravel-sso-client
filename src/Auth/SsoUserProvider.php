@@ -67,7 +67,8 @@ class SsoUserProvider extends EloquentUserProvider implements UserProvider
         if (is_null($user) && method_exists($model, 'correlateUserForSsoClient')) {
             $user = $model->correlateUserForSsoClient(
                 $identifier,
-                $this->jwt->getClaims()
+                $this->jwt->getClaims(),
+                $this->jwt->getUserInfo()
             )->first();
         }
 

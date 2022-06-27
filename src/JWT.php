@@ -30,11 +30,25 @@ class JWT
     protected $claims;
 
     /**
+     * Gets the JWT token user info.
+     *
+     * @var array|null
+     */
+    protected $userInfo;
+
+    /**
      * Gets the request instance.
      *
      * @var Request
      */
     protected $request;
+
+    /**
+     * Gets the sso service instance.
+     *
+     * @var SsoService
+     */
+    protected $ssoService;
 
     /**
      * Gets allowed algorithms.
@@ -46,11 +60,12 @@ class JWT
      *
      * @param Request  $request
      */
-    public function __construct(Request $request)
+    public function __construct(Request $request, SsoService $ssoService)
     {
         $this->token = null;
         $this->claims = null;
         $this->request = $request;
+        $this->ssoService = $ssoService;
     }
 
     /**
@@ -64,6 +79,25 @@ class JWT
             return $this->validIssuer() && $this->validAudience();
         } catch (\Throwable $exception) {
             return false;
+        }
+    }
+
+    /**
+     * Returns the JWT token user info.
+     * 
+     * @return array
+     * @throws UnauthorizedException If a JWT token is empty or invalid.
+     */
+    public function getUserInfo(string $name  = null, $default = null)
+    {
+        try {
+            if (is_null($this->userInfo)) {
+                $this->userInfo = $this->ssoService->getUserInfo($this);
+            }
+
+            return Arr::get($this->userInfo, $name, $default);
+        } catch (\Throwable $exception) {
+            throw new UnauthorizedException("Invalid JWT token.", 0, $exception);
         }
     }
 

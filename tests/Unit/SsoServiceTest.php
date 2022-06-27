@@ -209,7 +209,7 @@ class SsoServiceTest extends TestCase
         // Arrange
         $userinfo = ['userinfo' => true];
         $bearer = $this->getBearerToken();
-        $jwtToken = new JWT($this->makeRequest($bearer));
+        $jwtToken = new JWT($this->makeRequest($bearer), $this->app->make(SsoService::class));
 
         /** @var MockInterface|Client httpClient */
         $httpClient = Mockery::mock(Client::class);
@@ -235,7 +235,7 @@ class SsoServiceTest extends TestCase
         // Arrange
         $userId = ['id' => true];
         $bearer = $this->getBearerToken();
-        $jwtToken = new JWT($this->makeRequest($bearer));
+        $jwtToken = new JWT($this->makeRequest($bearer), $this->app->make(SsoService::class));
 
         /** @var MockInterface|Client httpClient */
         $httpClient = Mockery::mock(Client::class);

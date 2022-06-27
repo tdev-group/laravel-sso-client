@@ -4,6 +4,7 @@ namespace LaravelSsoClient\Tests\Unit;
 
 use Exception;
 use LaravelSsoClient\JWT;
+use LaravelSsoClient\Services\SsoService;
 use LaravelSsoClient\SsoClaimTypes;
 use Mockery;
 use Mockery\MockInterface;
@@ -21,7 +22,7 @@ class JWTTest extends TestCase
         // Arrange
         $token = $this->getToken();
         $bearer = $this->getBearerToken($token);
-        $jwtToken = new JWT($this->makeRequest($bearer));
+        $jwtToken = new JWT($this->makeRequest($bearer), $this->app->make(SsoService::class));
 
         // Act 
         $result = $jwtToken->getToken();
@@ -34,7 +35,7 @@ class JWTTest extends TestCase
     public function getToken_WithoutToken_ShouldThrowAnException(): void
     {
         // Arrange
-        $jwtToken = new JWT($this->makeRequest());
+        $jwtToken = new JWT($this->makeRequest(), $this->app->make(SsoService::class));
 
         // Assert
         $this->expectException(UnexpectedValueException::class);
@@ -49,7 +50,7 @@ class JWTTest extends TestCase
     {
         // Arrange
         $token = 'AnotherTokenType ' . $this->getToken();
-        $jwtToken = new JWT($this->makeRequest($token));
+        $jwtToken = new JWT($this->makeRequest($token), $this->app->make(SsoService::class));
 
         // Assert
         $this->expectException(UnexpectedValueException::class);
@@ -64,7 +65,7 @@ class JWTTest extends TestCase
     {
         // Arrange
         $token = 'Bearer ';
-        $jwtToken = new JWT($this->makeRequest($token));
+        $jwtToken = new JWT($this->makeRequest($token), $this->app->make(SsoService::class));
 
         // Assert
         $this->expectException(UnexpectedValueException::class);
@@ -82,7 +83,7 @@ class JWTTest extends TestCase
         // Arrange
         $token = $this->getToken();
         $bearer = $this->getBearerToken($token);
-        $jwtToken = new JWT($this->makeRequest($bearer));
+        $jwtToken = new JWT($this->makeRequest($bearer), $this->app->make(SsoService::class));
 
         // Act 
         $result = $jwtToken->getAuthorizationHeader();
@@ -95,7 +96,7 @@ class JWTTest extends TestCase
     public function getAuthorizationHeader_WithoutToken_ShouldThrowAnException(): void
     {
         // Arrange
-        $jwtToken = new JWT($this->makeRequest());
+        $jwtToken = new JWT($this->makeRequest(), $this->app->make(SsoService::class));
 
         // Assert
         $this->expectException(UnexpectedValueException::class);
@@ -486,5 +487,29 @@ class JWTTest extends TestCase
         // Assert
         $this->assertEquals($authority, $result[SsoClaimTypes::ISSUER]);
         $this->assertEquals($audience, $result[SsoClaimTypes::AUDIENCE]);
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+
+    /** @test */
+    public function getUserInfo_ShouldReturnedUserInfo(): void
+    {
+        // Arrange
+        $email = 'test@example.com';
+
+        /** @var MockInterface|SsoService ssoService */
+        $ssoService = Mockery::mock(SsoService::class);
+        $ssoService->shouldReceive('getUserInfo')->andReturn([
+            SsoClaimTypes::EMAIL => $email,
+        ]);
+
+        $jwtToken = new JWT($this->makeRequest(), $ssoService);
+
+        // Act 
+        $result = $jwtToken->getUserInfo();
+
+        // Assert
+        $this->assertEquals($email, $result[SsoClaimTypes::EMAIL]);
+        $this->assertArrayHasKey(SsoClaimTypes::EMAIL, $result);
     }
 }

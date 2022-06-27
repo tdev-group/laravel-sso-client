@@ -54,9 +54,8 @@ class SsoServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(JWT::class, function ($app) {
-            return new JWT($app['request']);
+            return new JWT($app['request'], $app->make(SsoService::class));
         });
-
         $this->app->singleton(SsoService::class);
         $this->app->singleton(IUserManagerService::class, UserManagerService::class);
     }
