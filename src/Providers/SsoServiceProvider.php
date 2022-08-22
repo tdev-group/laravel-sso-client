@@ -2,6 +2,7 @@
 
 namespace LaravelSsoClient\Providers;
 
+use Illuminate\Auth\TokenGuard;
 use Illuminate\Contracts\Auth\UserProvider;
 use LaravelSsoClient\Auth\SsoUserProvider;
 use LaravelSsoClient\Contracts\IUserManagerService;
@@ -9,8 +10,10 @@ use LaravelSsoClient\Services\SsoService;
 use LaravelSsoClient\Services\UserManagerService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
+use LaravelSsoClient\ClientCredentialsGuard;
 use LaravelSsoClient\JWT;
 use LaravelSsoClient\JWTGuard;
+use LaravelSsoClient\Providers\Middleware\CheckClientCredentials;
 
 class SsoServiceProvider extends ServiceProvider
 {
@@ -43,6 +46,10 @@ class SsoServiceProvider extends ServiceProvider
             $userProvider = $auth->createUserProvider($config['provider']);
 
             return new JWTGuard($jwt, $userProvider);
+        });
+
+        Auth::extend('sso-client', function ($app, string $name, array $config) {
+            return new TokenGuard($config['provider'], $app->request());
         });
     }
 

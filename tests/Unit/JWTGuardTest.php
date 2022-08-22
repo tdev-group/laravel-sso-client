@@ -33,7 +33,7 @@ class JWTGuardTest extends TestCase
 
         $jwtGuard = new JWTGuard($jwtToken, $userProvider);
 
-        // Act 
+        // Act
         $result = $jwtGuard->check();
 
         // Assert
@@ -53,7 +53,7 @@ class JWTGuardTest extends TestCase
 
         $jwtGuard = new JWTGuard($jwtToken, $userProvider);
 
-        // Act 
+        // Act
         $result = $jwtGuard->check();
 
         // Assert
@@ -77,7 +77,7 @@ class JWTGuardTest extends TestCase
 
         $jwtGuard = new JWTGuard($jwtToken, $userProvider);
 
-        // Act 
+        // Act
         $result = $jwtGuard->guest();
 
         // Assert
@@ -97,7 +97,7 @@ class JWTGuardTest extends TestCase
 
         $jwtGuard = new JWTGuard($jwtToken, $userProvider);
 
-        // Act 
+        // Act
         $result = $jwtGuard->guest();
 
         // Assert
@@ -125,7 +125,7 @@ class JWTGuardTest extends TestCase
 
         $jwtGuard = new JWTGuard($jwtToken, $userProvider);
 
-        // Act 
+        // Act
         $result = $jwtGuard->id();
 
         // Assert
@@ -145,7 +145,7 @@ class JWTGuardTest extends TestCase
 
         $jwtGuard = new JWTGuard($jwtToken, $userProvider);
 
-        // Act 
+        // Act
         $result = $jwtGuard->id();
 
         // Assert
@@ -173,7 +173,7 @@ class JWTGuardTest extends TestCase
 
         $jwtGuard = new JWTGuard($jwtToken, $userProvider);
 
-        // Act 
+        // Act
         $result = $jwtGuard->hasUser();
 
         // Assert
@@ -193,7 +193,7 @@ class JWTGuardTest extends TestCase
 
         $jwtGuard = new JWTGuard($jwtToken, $userProvider);
 
-        // Act 
+        // Act
         $result = $jwtGuard->hasUser();
 
         // Assert
@@ -221,7 +221,7 @@ class JWTGuardTest extends TestCase
 
         $jwtGuard = new JWTGuard($jwtToken, $userProvider);
 
-        // Act 
+        // Act
         $result = $jwtGuard->user();
 
         // Assert
@@ -241,7 +241,7 @@ class JWTGuardTest extends TestCase
 
         $jwtGuard = new JWTGuard($jwtToken, $userProvider);
 
-        // Act 
+        // Act
         $result = $jwtGuard->user();
 
         // Assert
@@ -271,7 +271,7 @@ class JWTGuardTest extends TestCase
 
         $jwtGuard = new JWTGuard($jwtToken, $userProvider);
 
-        // Act 
+        // Act
         /** @var TestingUser result */
         $result = $jwtGuard->user();
 
