@@ -29,7 +29,7 @@ class MissingScopeException extends AuthorizationException
     }
 
     /**
-     * Get the scopes that the user did not have.
+     * Returns missing scopes.
      *
      * @return array
      */
