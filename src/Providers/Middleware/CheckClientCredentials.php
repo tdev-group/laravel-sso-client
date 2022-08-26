@@ -54,7 +54,7 @@ class CheckClientCredentials
      */
     public function validate($scopes)
     {
-        $this->validateClaims();
+        $this->validateToken();
 
         $this->validateScopes($scopes);
 
@@ -68,9 +68,9 @@ class CheckClientCredentials
      *
      * @throws \Illuminate\Auth\AuthenticationException
      */
-    protected function validateClaims()
+    protected function validateToken()
     {
-        if (!$this->jwt->isValid() || empty($this->jwt->getClaims())) {
+        if (!$this->jwt->isValid()) {
             throw new AuthenticationException;
         }
     }
@@ -91,10 +91,15 @@ class CheckClientCredentials
         }
         $jwtScope = $this->jwt->getScope();
 
+        $missingScopes = [];
         foreach ($scopes as $scope) {
             if (!in_array($scope, $jwtScope)) {
-                throw new MissingScopeException($scope);
+                $missingScopes[] = $scope;
             }
+        }
+
+        if(!empty($missingScopes)){
+            throw new MissingScopeException($missingScopes);
         }
     }
 }

@@ -3,7 +3,6 @@
 namespace LaravelSsoClient\Exceptions;
 
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Support\Arr;
 
 class MissingScopeException extends AuthorizationException
 {
@@ -21,11 +20,11 @@ class MissingScopeException extends AuthorizationException
      * @param  string  $message
      * @return void
      */
-    public function __construct($scopes = [], $message = 'Invalid scope(s) provided.')
+    public function __construct(array $scopes = [], $message = 'Invalid scope(s) provided.')
     {
         parent::__construct($message);
 
-        $this->scopes = Arr::wrap($scopes);
+        $this->scopes = $scopes;
     }
 
     /**

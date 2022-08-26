@@ -145,13 +145,7 @@ class JWT
      */
     public function getScope()
     {
-        $scope = $this->getClaims(SsoClaimTypes::SCOPE);
-
-        if(is_string($scope)){
-            return explode(' ', $scope);
-        }
-
-        return $scope;
+        return $this->getClaims(SsoClaimTypes::SCOPE);
     }
 
     /**
