@@ -143,9 +143,9 @@ class User extends Authenticatable
 }
 ```
 
-# Client Creditinals
+# Client Credentials
 
-To use client creditinals authorisation you need, open `app/Http/Kernel.php` and add client route middleware.
+To use client credentials authorisation you need, open `app/Http/Kernel.php` and add client route middleware.
 
 ```
 $routeMiddleware = [
