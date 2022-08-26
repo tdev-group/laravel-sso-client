@@ -59,6 +59,24 @@ And Last you need, open `config/auth.php` and add following user provider and `s
 
 register `sso` guard in the same file.
 
+To use client creditinals authorisation you need, open `app/Http/Kernel.php` and add client route middleware.
+
+```
+$routeMiddleware = [
+    ...
+    'sso-client' => \LaravelSsoClient\Providers\Middleware\CheckClientCredentials::class
+    ...
+],
+```
+
+If you want to use route scopes then you need to add scope in your route middleware
+
+```
+Route::middleware('sso-client:scope')->get('/protected', function (Illuminate\Http\Request $request) {
+    return "You are on protected zone";
+});
+```
+
 # Usage
 
 To protect your routes, use the following construction:
