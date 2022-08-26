@@ -8,7 +8,7 @@ use Illuminate\Support\Arr;
 class MissingScopeException extends AuthorizationException
 {
     /**
-     * The scopes that the user did not have.
+     * Get missing scopes.
      *
      * @var array
      */
