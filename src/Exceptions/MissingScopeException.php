@@ -7,7 +7,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 class MissingScopeException extends AuthorizationException
 {
     /**
-     * The scopes that the user did not have.
+     * Get missing scopes.
      *
      * @var array
      */
@@ -28,7 +28,7 @@ class MissingScopeException extends AuthorizationException
     }
 
     /**
-     * Get the scopes that the user did not have.
+     * Returns missing scopes.
      *
      * @return array
      */
