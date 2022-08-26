@@ -70,7 +70,7 @@ class JWT
 
     /**
      * Determine if a token is valid.
-     * 
+     *
      * @return bool
      */
     public function isValid()
@@ -84,7 +84,7 @@ class JWT
 
     /**
      * Returns the JWT token user info.
-     * 
+     *
      * @return array
      * @throws UnauthorizedException If a JWT token is empty or invalid.
      */
@@ -103,7 +103,7 @@ class JWT
 
     /**
      * Returns the JWT token claims.
-     * 
+     *
      * @return array
      * @throws UnauthorizedException If a JWT token is empty or invalid.
      */
@@ -128,7 +128,7 @@ class JWT
 
     /**
      * Returns the subject of the JWT token.
-     * 
+     *
      * @return string
      * @throws UnauthorizedException If not authorized.
      */
@@ -138,9 +138,20 @@ class JWT
     }
 
     /**
+     * Returns the scope of the JWT token.
+     *
+     * @return array
+     * @throws
+     */
+    public function getScope()
+    {
+        return $this->getClaims(SsoClaimTypes::SCOPE);
+    }
+
+    /**
      * Decodes the JWT token.
      *
-     * @param string $token 
+     * @param string $token
      * @return array The list of identity claims.
      */
     public function decode(string $token)
@@ -167,7 +178,7 @@ class JWT
 
     /**
      * Returns the JWT token from request. Retrieves only Bearer tokens.
-     * 
+     *
      * @return string
      * @throws UnexpectedValueException If the authorization header is empty.
      * @throws UnexpectedValueException If a token is not a bearer token.
