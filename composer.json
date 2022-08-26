@@ -39,16 +39,12 @@
         "laravel": {
             "providers": [
                 "LaravelSsoClient\\Providers\\SsoServiceProvider"
-            ],
-            "dont-discover": [
-                "barryvdh/laravel-ide-helper"
             ]
         }
     },
     "require-dev": {
         "phpunit/phpunit": "^7.5|^9.0",
         "mockery/mockery": "^1.5",
-        "orchestra/testbench": "^3.6|^6.0",
-        "barryvdh/laravel-ide-helper": "^2.12"
+        "orchestra/testbench": "^3.6|^6.0"
     }
 }
