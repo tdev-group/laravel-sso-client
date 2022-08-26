@@ -39,7 +39,7 @@ class CheckClientCredentials
      */
     public function handle($request, Closure $next, ...$scopes)
     {
-        $this->validate($request, $scopes);
+        $this->validate($scopes);
 
         return $next($request);
     }
@@ -85,9 +85,11 @@ class CheckClientCredentials
      */
     protected function validateScopes($scopes)
     {
-        if ('*' == $scopes || in_array('*', $jwtScope = $this->jwt->getScope())) {
+
+        if(empty($scopes)){
             return;
         }
+        $jwtScope = $this->jwt->getScope();
 
         foreach ($scopes as $scope) {
             if (!in_array($scope, $jwtScope)) {
