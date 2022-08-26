@@ -70,7 +70,7 @@ class CheckClientCredentials
      */
     protected function validateClaims()
     {
-        if (!$this->jwt->isValid() || empty($this->jwt->getClaims())) {
+        if (!$this->jwt->isValid()) {
             throw new AuthenticationException;
         }
     }
