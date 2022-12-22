@@ -194,7 +194,7 @@ class SsoService
         ]);
 
         throw new RequestTokenFailedException(
-            "Request a client credentials token failed, the server returned (status code: {$statusCode})",
+            "Request a client credentials token failed, the server returned (status code: {$statusCode})"
         );
     }
 
