@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\UnauthorizedException;
+use stdClass;
 use UnexpectedValueException;
 
 class JWT
@@ -159,10 +160,12 @@ class JWT
         try {
             $publicKeys = SsoService::getPublicKeys();
 
+            $headers = new stdClass();
+
             $claims = (array) \Firebase\JWT\JWT::decode(
                 $token,
                 JWK::parseKeySet($publicKeys),
-                static::ALLOWED_ALGORITHMS
+                $headers
             );
 
             return $claims;
