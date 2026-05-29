@@ -21,7 +21,7 @@
         "illuminate/http": "^12|^13",
         "illuminate/auth": "^12|^13",
         "illuminate/database": "^12|^13",
-        "illuminate/support": "^12|13",
+        "illuminate/support": "^12|^13",
         "illuminate/validation": "^12|^13",
         "guzzlehttp/guzzle": "^7.10"
     },
